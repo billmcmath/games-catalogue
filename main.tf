@@ -139,6 +139,8 @@ resource "aws_lambda_function" "games_catalogue" {
   source_code_hash = data.archive_file.lambda_code.output_base64sha256
   layers           = [aws_lambda_layer_version.dependencies.arn]
 
+  architectures = ["arm64"]
+
   tags = {
     Name    = "games-catalogue"
     invoker = "tailscale"
