@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Wishlist - Games Catalogue{% endblock %}
+
+{% block content %}
+<div class="controls">
+    <div class="platform-section">
+        <label for="platformFilter">Filter by platform:</label>
+        <select id="platformFilter">
+            <option value="">All Platforms</option>
+            {% for platform in platforms %}
+                <option value="{{ platform }}">{{ platform }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="add-section">
+    <h2>Add to Wishlist</h2>
+    <form method="POST" action="/gc/wishlist/add">
+        <input type="text" name="platform" placeholder="Platform (e.g., SNES)" required>
+        <input type="text" name="game_name" placeholder="Game Name" required>
+        <button type="submit" class="btn btn-success">Add to Wishlist</button>
+    </form>
+</div>
+
+<div id="wishlist-container">
+    <div id="wishlistItems" class="games-grid">
+        {% if wishlist %}
+            {% for item in wishlist %}
+                <div class="game-card" data-platform="{{ item.platform }}">
+                    <h3>{{ item.game_name }}</h3>
+                    <p><strong>Platform:</strong> {{ item.platform }}</p>
+                    <form method="POST" action="/gc/wishlist/purchased" style="display: inline;">
+                        <input type="hidden" name="platform" value="{{ item.platform }}">
+                        <input type="hidden" name="game_id" value="{{ item.game_id }}">
+                        <button type="submit" class="btn btn-success btn-small">Mark as Purchased</button>
+                    </form>
+                    <form method="POST" action="/gc/wishlist/delete" style="display: inline;">
+                        <input type="hidden" name="platform" value="{{ item.platform }}">
+                        <input type="hidden" name="game_id" value="{{ item.game_id }}">
+                        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Remove from wishlist?')">Remove</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No items in wishlist.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function filterByPlatform() {
+    const platformFilter = document.getElementById("platformFilter").value;
+    const cards = document.querySelectorAll(".game-card");
+
+    cards.forEach(card => {
+        const platform = card.dataset.platform;
+        card.style.display = !platformFilter || platform === platformFilter ? "" : "none";
+    });
+}
+
+document.getElementById("platformFilter").addEventListener("change", filterByPlatform);
+</script>
+{% endblock %}

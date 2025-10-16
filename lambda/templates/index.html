@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Games Catalogue{% endblock %}
+
+{% block content %}
+<div class="controls">
+    <div class="filter-section">
+        <input type="text" id="search" placeholder="Search games...">
+    </div>
+    
+    <div class="platform-section">
+        <label for="platformFilter">Filter by platform:</label>
+        <select id="platformFilter">
+            <option value="">All Platforms</option>
+            {% for platform in platforms %}
+                <option value="{{ platform }}" {% if selected_platform == platform %}selected{% endif %}>{{ platform }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="add-section">
+    <h2>Add Game</h2>
+    <form method="POST" action="/gc/add">
+        <input type="text" name="platform" placeholder="Platform (e.g., SNES)" required>
+        <input type="text" name="game_name" placeholder="Game Name" required>
+        <label for="media_type">Media Type:</label>
+        <select name="media_type" id="media_type">
+            <option value="Cartridge" selected>Cartridge</option>
+            <option value="Download">Download</option>
+            <option value="Tape">Tape</option>
+            <option value="Cassette">Cassette</option>
+            <option value="Disc">Disc</option>
+            <option value="Floppy">Floppy</option>
+        </select>
+        <label>
+            <input type="checkbox" name="has_box" value="true"> Has Box
+        </label>
+        <label>
+            <input type="checkbox" name="has_manual" value="true"> Has Manual
+        </label>
+        <button type="submit" class="btn btn-success">Add to Catalogue</button>
+    </form>
+</div>
+
+<div id="games-container">
+    <div id="gamesList" class="games-grid">
+        {% if games %}
+            {% for game in games %}
+                <div class="game-card" data-platform="{{ game.platform }}" data-name="{{ game.game_name|lower }}">
+                    <h3>{{ game.game_name }}</h3>
+                    <p><strong>Platform:</strong> {{ game.platform }}</p>
+                    <p><strong>Media Type:</strong> {{ game.media_type or 'N/A' }}</p>
+                    {% if game.has_box %}<p>✓ Has Box</p>{% endif %}
+                    {% if game.has_manual %}<p>✓ Has Manual</p>{% endif %}
+                    <form method="POST" action="/delete" style="display: inline;">
+                        <input type="hidden" name="platform" value="{{ game.platform }}">
+                        <input type="hidden" name="game_id" value="{{ game.game_id }}">
+                        <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Delete this game?')">Delete</button>
+                    </form>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No games found.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+function filterGames() {
+    const searchTerm = document.getElementById("search").value.toLowerCase();
+    const platformFilter = document.getElementById("platformFilter").value;
+    const cards = document.querySelectorAll(".game-card");
+
+    cards.forEach(card => {
+        const name = card.dataset.name;
+        const platform = card.dataset.platform;
+
+        const matchesSearch = !searchTerm || name.includes(searchTerm);
+        const matchesPlatform = !platformFilter || platform === platformFilter;
+
+        card.style.display = matchesSearch && matchesPlatform ? "" : "none";
+    });
+}
+
+document.getElementById("search").addEventListener("input", filterGames);
+document.getElementById("platformFilter").addEventListener("change", filterGames);
+</script>
+{% endblock %}
