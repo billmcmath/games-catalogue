@@ -25,16 +25,13 @@ def lambda_handler(event, context):
         path = event.get("path", "/")
     
     # Strip /games prefix if present (from Nginx proxy)
-    print(path)
     if path.startswith("/gc"):
-        path = path[3:]  # len("/gc") = 3, but we want to keep the leading /
+        path = path[3:]
     if not path:
         path = "/"
-    print(path)
+    print(f"Using the path {path}")
 
-    print(f"1111: event{event}")
     try:
-        print("2222222")
         if http_method == "GET":
             print("GET method")
             if path == "/":
@@ -53,24 +50,14 @@ def lambda_handler(event, context):
 
         elif http_method == "POST":
             print("POST method")
-            print(f"path={path}.")
-            print(f"Raw body: {event.get('body')!r}")
-            # body = json.loads(event["body"])
             body = {k: v[0] for k, v in parse_qs(event["body"]).items()}
-            print(body)
-            print(path == "/add")
             if path == "/add":
-                print(f"123: {body}")
                 add_game(body)
                 platform = body.get("platform", "")
-                print(f"123: {platform}")
                 redirect_url = f"/gc/{platform}" if platform else "/gc"
-                print(f"123: {redirect_url}")
                 return redirect_response(redirect_url)
             elif path == "/wishlist/add":
-                print("1")
                 add_to_wishlist(body)
-                print("2")
                 return redirect_response("/gc/wishlist")
             elif path == "/wishlist/purchased":
                 mark_as_purchased(body)
