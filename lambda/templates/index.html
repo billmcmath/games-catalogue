@@ -53,7 +53,7 @@
                     <p><strong>Media Type:</strong> {{ game.media_type or 'N/A' }}</p>
                     {% if game.has_box %}<p>✓ Has Box</p>{% endif %}
                     {% if game.has_manual %}<p>✓ Has Manual</p>{% endif %}
-                    <form method="POST" action="/delete" style="display: inline;">
+                    <form method="POST" action="/gc/delete" style="display: inline;">
                         <input type="hidden" name="platform" value="{{ game.platform }}">
                         <input type="hidden" name="game_id" value="{{ game.game_id }}">
                         <button type="submit" class="btn btn-danger btn-small" onclick="return confirm('Delete this game?')">Delete</button>
